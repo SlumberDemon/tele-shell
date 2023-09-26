@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# maybe add some sort of startepage idk
+
+show_help() {
+    printf "
+    Usage:
+      %s [option]
+    
+    Options:
+      docs            Deta docs
+      discovery       Deta discovery
+    \n" "${0##*/}"
+}
+
+if [ "$1" == "--help" ]; then
+
+    show_help
+    exit 0
+
+fi
+
+if [ "$1" == "docs" ]; then
+
+    search_query="$2"
+    api_url="https://teletype.deta.dev/search?q=${search_query}&l=25"
+    response=$(curl -s "$api_url")
+
+    urls=$(echo "$response" | jq -r '.hits[].url')
+    # names=$(echo "$response" | jq -r '.hits[].names')
+
+    if [ -z "$urls" ]; then
+        echo "No results found for '$search_query'."
+        exit 1
+    fi
+
+    selected_url=$(echo "$urls" | fzf --preview "echo {}" --preview-window=up:3:wrap)
+
+    echo "$selected_url"
+
+elif [ "$1" == "discovery" ]; then
+
+    search_query="$2"
+    api_url="https://teletype.deta.dev/discovery?q=~"
+    response=$(curl -s "$api_url")
+
+    urls=$(echo "$response" | jq -r '.results[].link')
+
+    if [ -z "$urls" ]; then
+        echo "No results found for '$search_query'."
+        exit 1
+    fi
+
+    selected_url=$(echo "$urls" | fzf --preview "echo {}" --preview-window=up:3:wrap)
+
+    echo "$selected_url"
+
+fi
