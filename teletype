@@ -6,7 +6,7 @@ show_help() {
       %s [option]
     
     Options:
-      docs            Deta docs
+      docs <query>    Deta docs
       discovery       Deta discovery
     \n" "${0##*/}"
 }
